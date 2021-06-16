@@ -3,10 +3,10 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to Read the Docs Template's documentation!
+欢迎到访!
 ==================================================
 
-Contents:
+目录:
 
 .. toctree::
    :maxdepth: 2
@@ -16,7 +16,7 @@ Contents:
 
 
 
-Indices and tables
+索引和表格
 ==================
 
 * :ref:`genindex`
