@@ -22,9 +22,14 @@ openGauss
     ~$ python --version
     Python 3.6.9
 
+修改默认的sh版本为bash(否则编译cJSON是会有错误)::
+
+     $ sudo dpkg-reconfigure dash
+     在GUI 界面输入 No, 选择bash
+
 安装需要的依赖库::
 
-    sudo apt-get install libssl-dev rpm2cpio rename pkg-config  libkrb5-dev libjsoncpp-dev flex bison  libedit-dev libpam0g-dev libaio-dev libncurses5-dev libffi-dev libtool -y
+    sudo apt-get install libssl-dev rpm2cpio rename pkg-config  libkrb5-dev libjsoncpp-dev flex bison  libedit-dev libpam0g-dev libaio-dev libncurses5-dev libffi-dev libtool pkg-config libkrb5-dev golang -y
 
 编译第三方库::
 
@@ -45,19 +50,6 @@ openGauss
 
 解决方案： TODO
 
-
-碰到cJSON编译错误的问题 ::
-
-    ./build_dependency.sh
-    ------------------------------cJSON------------------------------------------------------
-    build.sh: 17: build.sh: source: not found
-
-修改默认的sh版本为bash::
-
-     $ ls -l `which sh`
-     lrwxrwxrwx 1 root root 4 Feb  3  2020 /bin/sh -> dash
-     $ sudo dpkg-reconfigure dash
-     GUI 界面输入 No
 
 
 
