@@ -18,7 +18,7 @@ llvm 暂时没有编译过
 
 安装需要的编译工具, 并设置默认的Python版本为Python3::
 
-    ~$ sudo apt install build-essential llvm clang golang autoconf python3-pip -y
+    ~$ sudo apt install build-essential llvm clang golang autoconf python3-pip libstdc++-8-dev -y
     ~$ sudo update-alternatives --install /usr/bin/python python /usr/bin/python3 150
     ~$ python --version
     Python 3.6.9
@@ -33,6 +33,13 @@ Ubuntu 18.04 默认带的 cmake 版本比较低，需要升级到3.16版本以�
     sudo make
     sudo make install
     cmake  --version
+
+需升级安装 bison3.5 的版本，否则最后会出现链接错误::
+
+    wget http://ftp.gnu.org/gnu/bison/bison-3.5.4.tar.gz
+    cd bison-3.5.4/
+    ./configure
+    make
 
 Python需要包含以下依赖库::
 
@@ -72,31 +79,20 @@ Python需要包含以下依赖库::
     export CODE_BASE=/home/ubuntu/openGauss-server
     export BINARYLIBS=/home/ubuntu/binarylibs
     export GAUSSHOME=$CODE_BASE/dest/
-    export GCC_PATH=$BINARYLIBS/buildtools/ubuntu18.04_x86_64/gcc7.3/
     export CC=/usr/bin/gcc
     export CXX=/usr/bin/g++
     export LD_LIBRARY_PATH=$GAUSSHOME/lib:$GCC_PATH/gcc/lib64:$GCC_PATH/isl/lib:$GCC_PATH/mpc/lib/:$GCC_PATH/mpfr/lib/:$GCC_PATH/gmp/lib/:$LD_LIBRARY_PATH export PATH=$GAUSSHOME/bin:$GCC_PATH/gcc/bin:$PATH
 
 
+直接编译::
+
+    sh build.sh -m debug -3rd /home/ubuntu/binarylibs/
+
+手动编译：
 生产配置文件::
 
-    ~/openGauss-server$ ./configure --gcc-version=7.5.0 CC=g++ CFLAGS='-O0' --prefix=$GAUSSHOME --3rd=$BINARYLIBS --enable-debug --enable-cassert --enable-thread-safety --without-zlib
-
-
-开始编译，神奇的错误::
-
-    ubuntu@ubuntu:~/openGauss-server$ make -sj
-    make[6]: /home/ubuntu/openGauss-third_party_binarylibs/dependency/ubuntu18.04_x86_64/llvm/comm/bin/llvm-config: Command not found
-    make[6]: /home/ubuntu/openGauss-third_party_binarylibs/dependency/ubuntu18.04_x86_64/llvm/comm/bin/llvm-config: Command not found
-    In file included from ../../../src/include/foreign/foreign.h:16:0,
-                     from ../../../src/include/nodes/plannodes.h:18,
-                     from ../../../src/include/workload/workload.h:34,
-                     from ../../../src/include/access/gtm.h:28,
-                     from gs_thread.cpp:37:
-    ../../../src/include/access/obs/obs_am.h:33:10: fatal error: eSDKOBS.h: No such file or directory
-     #include "eSDKOBS.h"
-              ^~~~~~~~~~~
-
+    $ ./configure  CC=g++ CFLAGS='-O0' --prefix=$GAUSSHOME --3rd=$BINARYLIBS --enable-debug --enable-cassert --enable-thread-safety --without-zlib
+    $ make
 
 有奇怪的编译错误，可以参考：
 https://blog.opengauss.org/zh/post/zhengxue/problem_solution/
