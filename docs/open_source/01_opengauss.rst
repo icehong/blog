@@ -3,7 +3,7 @@ openGauss
 
 参考 https://zhuanlan.zhihu.com/p/368144566
 计划写一个基于Ubuntu 18编译openGauss的说明，看看里面到底有多少坑。
-当前基于2021.7.3 master分支， 正在写作中， 未完成！！！
+当前基于2021.7.5 master分支编译通过。
 
 基于Ubuntu 18.04 LTS版本编译OpenGauss, 基本环境如下::
 
@@ -29,11 +29,22 @@ Ubuntu 18.04 默认带的 cmake 版本比较低，需要升级到3.16版本以�
     tar xzvf cmake-3.16.3.tar.gz
     cd cmake-3.16.3
     sudo ./bootstrap
-    sudo make && sudo make install
+    make && sudo make install
     cmake  --version
 
-需升级安装 bison3.5 的版本，否则最后会出现链接错误::
+安装需要的依赖库::
 
+    sudo apt-get install libssl-dev rpm2cpio rename pkg-config  libkrb5-dev libjsoncpp-dev libedit-dev libpam0g-dev libaio-dev libncurses5-dev libffi-dev libtool pkg-config libkrb5-dev -y
+
+使用ubuntu 18.04 默认版本的 flex和bison 后续编译代码是会碰到链接问题, 手动编译和安装 flex 2.5.39 和 bison bison-3.5.4 版本::
+
+    flex 2.5.39版本： 
+    wget https://github.com/westes/flex/releases/download/flex-2.5.39/flex-2.5.39.tar.gz
+    tar xzvf flex-2.5.39.tar.gz
+    cd flex-2.5.39
+    ./configure && make && make install
+    sudo ln -s /usr/local/bin/flex /usr/bin/flex
+    安装 bison3.5 的版本:
     wget http://ftp.gnu.org/gnu/bison/bison-3.5.4.tar.gz
     cd bison-3.5.4/
     ./configure && make && make install
@@ -47,9 +58,7 @@ Python需要包含以下依赖库::
      sudo dpkg-reconfigure dash
      在GUI 界面输入 No, 选择bash
 
-安装需要的依赖库::
 
-    sudo apt-get install libssl-dev rpm2cpio rename pkg-config  libkrb5-dev libjsoncpp-dev flex bison  libedit-dev libpam0g-dev libaio-dev libncurses5-dev libffi-dev libtool pkg-config libkrb5-dev -y
 
 代码库上下载的libxml2的包似乎是错的，重新下载一个才好::
 
@@ -59,7 +68,7 @@ Python需要包含以下依赖库::
     包下载好放在这里就好，后面脚本自动编译
 
 
-编译第三方库::
+准备工作终于完成，开始编译第三方库::
 
     ubuntu@ubuntu:~/openGauss-third_party/build$ sudo sh build_all.sh
     --------------------------------openssl-------------------------------------------------
@@ -67,19 +76,11 @@ Python需要包含以下依赖库::
     ar: creating libcrypto.a
     ......
 
+如果一次编译成功， 说明你运气想当好了（严格按照前面说明做了准备），把编译好的输出拷到和主代码同级目录::
 
-解决方案： TODO
+    cp -r ~/openGauss-third_party/output ~/binarylibs
 
-
-
-编译主代码::
-
-直接编译::
-
-    sh build.sh -m debug -3rd /home/ubuntu/binarylibs/
-
-
-手动编译::
+开始编译主代码
 
 设置环境变量::
 
@@ -91,25 +92,13 @@ Python需要包含以下依赖库::
     export LD_LIBRARY_PATH=$GAUSSHOME/lib:$GCC_PATH/gcc/lib64:$GCC_PATH/isl/lib:$GCC_PATH/mpc/lib/:$GCC_PATH/mpfr/lib/:$GCC_PATH/gmp/lib/:$LD_LIBRARY_PATH
     export PATH=$GAUSSHOME/bin:$GCC_PATH/gcc/bin:$PATH
 
+    修改gcc 版本为本地版本，我是手动吧 configure 文件里 gcc_version='7.3.0' 改成了本地的 7.5.0
 
     $ ./configure  CC=g++ CFLAGS='-O0' --prefix=$GAUSSHOME --3rd=$BINARYLIBS --enable-debug --enable-cassert --enable-thread-safety --without-zlib
-    $ make
+    $ make 
 
+    最后看见 All of openGauss successfully made. Ready to install.  编译成功
 
-    /home/ubuntu/openGauss-server/src/common/backend/parser/parser.cpp:134: undefined reference to `core_yylex(core_YYSTYPE*, int*, void*)'
-    /home/ubuntu/openGauss-server/src/common/backend/parser/parser.cpp:143: undefined reference to `core_yylex(core_YYSTYPE*, int*, void*)'
-    /home/ubuntu/openGauss-server/src/common/backend/parser/parser.cpp:166: undefined reference to `core_yylex(core_YYSTYPE*, int*, void*)'
-    /home/ubuntu/openGauss-server/src/common/backend/parser/parser.cpp:187: undefined reference to `core_yylex(core_YYSTYPE*, int*, void*)'
-    /home/ubuntu/openGauss-server/src/common/backend/parser/parser.cpp:209: undefined reference to `core_yylex(core_YYSTYPE*, int*, void*)'
-
-
-
-
-
-
-
-
-
-
-有奇怪的编译错误，可以参考：
-https://blog.opengauss.org/zh/post/zhengxue/problem_solution/
+| 编译过程中如果有奇怪的编译错误参考：
+| 官方参考: https://gitee.com/opengauss/openGauss-server
+| ubuntu编译指导: https://blog.opengauss.org/zh/post/zhengxue/problem_solution/

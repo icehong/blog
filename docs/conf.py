@@ -35,7 +35,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = '开源随笔'
-copyright = '2021, icehong'
+copyright = '2021, icehong at gmail.com'
 author = 'icehong'
 
 # The version info for the project you're documenting, acts as replacement for
